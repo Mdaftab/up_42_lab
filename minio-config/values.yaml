@@ -1,0 +1,45 @@
+mode: standalone
+
+## Set default rootUser and rootPassword
+auth:
+  rootUser: minioadmin
+  rootPassword: minioadmin
+
+## Enable persistence using Persistent Volume Claims
+persistence:
+  enabled: true
+  size: 10Gi
+
+## Configure resource requests and limits
+resources:
+  requests:
+    memory: 256Mi
+    cpu: 250m
+  limits:
+    memory: 512Mi
+    cpu: 500m
+
+## Create a default bucket
+defaultBuckets: "s3www-files"
+
+## Configure the service to be accessible
+service:
+  type: ClusterIP
+  port: 9000
+
+## Init containers to initialize the MinIO instance
+initContainers:
+  - name: init-data
+    image: busybox
+    command:
+      - sh
+      - -c
+      - |
+        echo "Hello from MinIO!" > /data/hello.txt
+    volumeMounts:
+      - name: data
+        mountPath: /data
+
+## Configure MinIO to run in standalone mode
+statefulset:
+  replicaCount: 1

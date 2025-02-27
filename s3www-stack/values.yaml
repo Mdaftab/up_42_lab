@@ -1,0 +1,88 @@
+
+replicaCount: 1
+image:
+  repository: s3www
+  pullPolicy: IfNotPresent
+  tag: latest
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+securityContext: {}
+service:
+  type: ClusterIP
+  port: 8080
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations: {}
+  hosts:
+    - host: s3www.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+metrics:
+  enabled: true
+  port: 9090
+  serviceMonitor:
+    enabled: true
+
+minio:
+  enabled: false
+  endpoint: "minio.s3www.svc.cluster.local:9000"
+  rootUser: "minioadmin"
+  rootPassword: "minioadmin"
+  bucket: "s3www-files"
+
+fileToServe:
+  sourceUrl: "https://media.giphy.com/media/VdiQKDAguhDSi37gn1/giphy.gif"
+  initContainer:
+    enabled: true
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+
+volumes: []
+volumeMounts: []
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
